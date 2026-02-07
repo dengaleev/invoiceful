@@ -1,7 +1,7 @@
 import { useCallback, useState } from 'react'
-import { Box, Button, Container, MenuItem, TextField, Typography } from '@mui/material'
+import { Box, Button, Container, Link, MenuItem, TextField, Typography } from '@mui/material'
 import { pdf } from '@react-pdf/renderer'
-import { Download, RestartAlt } from '@mui/icons-material'
+import { Download, GitHub, RestartAlt } from '@mui/icons-material'
 import InvoiceForm from './InvoiceForm'
 import InvoicePDF from './InvoicePDF'
 import { useInvoiceState } from './useInvoiceState'
@@ -85,6 +85,18 @@ export default function App() {
         </Box>
       </Box>
       <InvoiceForm state={state} dispatch={dispatch} />
+      <Box component="footer" sx={{ mt: 4, py: 2, textAlign: 'center' }}>
+        <Link
+          href="https://github.com/dengaleev/invoiceful"
+          target="_blank"
+          rel="noopener"
+          color="text.secondary"
+          sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.5, fontSize: 12 }}
+        >
+          <GitHub sx={{ fontSize: 14 }} />
+          {__COMMIT_HASH__}
+        </Link>
+      </Box>
     </Container>
   )
 }
