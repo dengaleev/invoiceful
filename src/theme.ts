@@ -7,4 +7,17 @@ export const theme = createTheme({
   typography: {
     h5: { fontWeight: 600 },
   },
+  components: {
+    MuiInputLabel: {
+      styleOverrides: {
+        outlined: {
+          '&.MuiInputLabel-shrink': {
+            backgroundColor: '#fff',
+            paddingInline: 4,
+            marginInlineStart: -4,
+          },
+        },
+      },
+    },
+  },
 })
