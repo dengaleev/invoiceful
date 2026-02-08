@@ -11,6 +11,8 @@ import {
   TableRow,
   TextField,
   Typography,
+  useMediaQuery,
+  useTheme,
 } from '@mui/material'
 import Grid from '@mui/material/Grid2'
 import { Add, Delete } from '@mui/icons-material'
@@ -23,6 +25,8 @@ interface Props {
 }
 
 export default function InvoiceForm({ state, dispatch }: Props) {
+  const theme = useTheme()
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
   const subtotal = state.items.reduce((sum, item) => sum + item.quantity * item.rate, 0)
   const taxAmount = subtotal * (state.taxRate / 100)
   const total = subtotal + taxAmount
@@ -97,84 +101,158 @@ export default function InvoiceForm({ state, dispatch }: Props) {
       </Paper>
 
       {/* Line Items */}
-      <TableContainer component={Paper} variant="outlined">
-        <Table size="small">
-          <TableHead>
-            <TableRow>
-              <TableCell>Description</TableCell>
-              <TableCell align="right" sx={{ width: 100 }}>Qty</TableCell>
-              <TableCell align="right" sx={{ width: 120 }}>Rate</TableCell>
-              <TableCell align="right" sx={{ width: 120 }}>Amount</TableCell>
-              <TableCell sx={{ width: 48 }} />
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {state.items.map((item) => (
-              <TableRow key={item.id}>
-                <TableCell>
-                  <TextField
-                    fullWidth
-                    size="small"
-                    multiline
-                    placeholder="Item description"
-                    value={item.description}
-                    onChange={(e) =>
-                      dispatch({ type: 'UPDATE_ITEM', payload: { id: item.id, field: 'description', value: e.target.value } })
-                    }
-                  />
-                </TableCell>
-                <TableCell align="right">
-                  <TextField
-                    size="small"
-                    variant="standard"
-                    type="number"
-                    inputProps={{ min: 0, style: { textAlign: 'right' } }}
-                    value={item.quantity}
-                    onChange={(e) =>
-                      dispatch({ type: 'UPDATE_ITEM', payload: { id: item.id, field: 'quantity', value: Number(e.target.value) } })
-                    }
-                    sx={{ width: 80 }}
-                  />
-                </TableCell>
-                <TableCell align="right">
-                  <TextField
-                    size="small"
-                    variant="standard"
-                    type="number"
-                    inputProps={{ min: 0, step: 0.01, style: { textAlign: 'right' } }}
-                    value={item.rate}
-                    onChange={(e) =>
-                      dispatch({ type: 'UPDATE_ITEM', payload: { id: item.id, field: 'rate', value: Number(e.target.value) } })
-                    }
-                    sx={{ width: 100 }}
-                  />
-                </TableCell>
-                <TableCell align="right">
-                  <Typography variant="body2">{fmt(item.quantity * item.rate)}</Typography>
-                </TableCell>
-                <TableCell>
-                  <IconButton
-                    size="small"
-                    onClick={() => dispatch({ type: 'REMOVE_ITEM', payload: item.id })}
-                    disabled={state.items.length === 1}
-                  >
-                    <Delete fontSize="small" />
-                  </IconButton>
-                </TableCell>
+      {isMobile ? (
+        <Paper variant="outlined" sx={{ p: 1.5 }}>
+          {state.items.map((item, index) => (
+            <Box
+              key={item.id}
+              sx={{
+                p: 1.5,
+                mb: 1.5,
+                border: '1px solid',
+                borderColor: 'divider',
+                borderRadius: 1,
+                '&:last-of-type': { mb: 0 },
+              }}
+            >
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1 }}>
+                <Typography variant="caption" color="text.secondary">Item {index + 1}</Typography>
+                <IconButton
+                  size="small"
+                  onClick={() => dispatch({ type: 'REMOVE_ITEM', payload: item.id })}
+                  disabled={state.items.length === 1}
+                >
+                  <Delete fontSize="small" />
+                </IconButton>
+              </Box>
+              <TextField
+                fullWidth
+                size="small"
+                multiline
+                label="Description"
+                placeholder="Item description"
+                value={item.description}
+                onChange={(e) =>
+                  dispatch({ type: 'UPDATE_ITEM', payload: { id: item.id, field: 'description', value: e.target.value } })
+                }
+                sx={{ mb: 1.5 }}
+              />
+              <Box sx={{ display: 'flex', gap: 1.5, alignItems: 'center' }}>
+                <TextField
+                  size="small"
+                  label="Qty"
+                  type="number"
+                  inputProps={{ min: 0, style: { textAlign: 'right' } }}
+                  value={item.quantity}
+                  onChange={(e) =>
+                    dispatch({ type: 'UPDATE_ITEM', payload: { id: item.id, field: 'quantity', value: Number(e.target.value) } })
+                  }
+                  sx={{ flex: 1 }}
+                />
+                <TextField
+                  size="small"
+                  label="Rate"
+                  type="number"
+                  inputProps={{ min: 0, step: 0.01, style: { textAlign: 'right' } }}
+                  value={item.rate}
+                  onChange={(e) =>
+                    dispatch({ type: 'UPDATE_ITEM', payload: { id: item.id, field: 'rate', value: Number(e.target.value) } })
+                  }
+                  sx={{ flex: 1 }}
+                />
+                <Box sx={{ flex: 1, textAlign: 'right' }}>
+                  <Typography variant="caption" color="text.secondary">Amount</Typography>
+                  <Typography variant="body2" fontWeight={500}>{fmt(item.quantity * item.rate)}</Typography>
+                </Box>
+              </Box>
+            </Box>
+          ))}
+          <Box sx={{ pt: 1 }}>
+            <Button size="small" startIcon={<Add />} onClick={() => dispatch({ type: 'ADD_ITEM' })}>
+              Add Item
+            </Button>
+          </Box>
+        </Paper>
+      ) : (
+        <TableContainer component={Paper} variant="outlined">
+          <Table size="small">
+            <TableHead>
+              <TableRow>
+                <TableCell>Description</TableCell>
+                <TableCell align="right" sx={{ width: 100 }}>Qty</TableCell>
+                <TableCell align="right" sx={{ width: 120 }}>Rate</TableCell>
+                <TableCell align="right" sx={{ width: 120 }}>Amount</TableCell>
+                <TableCell sx={{ width: 48 }} />
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-        <Box sx={{ p: 1 }}>
-          <Button size="small" startIcon={<Add />} onClick={() => dispatch({ type: 'ADD_ITEM' })}>
-            Add Item
-          </Button>
-        </Box>
-      </TableContainer>
+            </TableHead>
+            <TableBody>
+              {state.items.map((item) => (
+                <TableRow key={item.id}>
+                  <TableCell>
+                    <TextField
+                      fullWidth
+                      size="small"
+                      multiline
+                      placeholder="Item description"
+                      value={item.description}
+                      onChange={(e) =>
+                        dispatch({ type: 'UPDATE_ITEM', payload: { id: item.id, field: 'description', value: e.target.value } })
+                      }
+                    />
+                  </TableCell>
+                  <TableCell align="right">
+                    <TextField
+                      size="small"
+                      variant="standard"
+                      type="number"
+                      inputProps={{ min: 0, style: { textAlign: 'right' } }}
+                      value={item.quantity}
+                      onChange={(e) =>
+                        dispatch({ type: 'UPDATE_ITEM', payload: { id: item.id, field: 'quantity', value: Number(e.target.value) } })
+                      }
+                      sx={{ width: 80 }}
+                    />
+                  </TableCell>
+                  <TableCell align="right">
+                    <TextField
+                      size="small"
+                      variant="standard"
+                      type="number"
+                      inputProps={{ min: 0, step: 0.01, style: { textAlign: 'right' } }}
+                      value={item.rate}
+                      onChange={(e) =>
+                        dispatch({ type: 'UPDATE_ITEM', payload: { id: item.id, field: 'rate', value: Number(e.target.value) } })
+                      }
+                      sx={{ width: 100 }}
+                    />
+                  </TableCell>
+                  <TableCell align="right">
+                    <Typography variant="body2">{fmt(item.quantity * item.rate)}</Typography>
+                  </TableCell>
+                  <TableCell>
+                    <IconButton
+                      size="small"
+                      onClick={() => dispatch({ type: 'REMOVE_ITEM', payload: item.id })}
+                      disabled={state.items.length === 1}
+                    >
+                      <Delete fontSize="small" />
+                    </IconButton>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+          <Box sx={{ p: 1 }}>
+            <Button size="small" startIcon={<Add />} onClick={() => dispatch({ type: 'ADD_ITEM' })}>
+              Add Item
+            </Button>
+          </Box>
+        </TableContainer>
+      )}
 
       {/* Totals & Tax */}
-      <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-        <Box sx={{ width: 280 }}>
+      <Box sx={{ display: 'flex', justifyContent: { xs: 'stretch', sm: 'flex-end' } }}>
+        <Box sx={{ width: { xs: '100%', sm: 280 } }}>
           <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
             <Typography variant="body2">Subtotal</Typography>
             <Typography variant="body2">{fmt(subtotal)}</Typography>

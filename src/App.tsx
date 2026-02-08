@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react'
-import { Box, Button, Container, Link, MenuItem, TextField, Typography } from '@mui/material'
+import { Box, Button, Container, Link, MenuItem, TextField, Typography, useMediaQuery, useTheme } from '@mui/material'
 import { pdf } from '@react-pdf/renderer'
 import { Download, GitHub, RestartAlt } from '@mui/icons-material'
 import InvoiceForm from './InvoiceForm'
@@ -21,6 +21,8 @@ const LOCALES = [
 export default function App() {
   const { state, dispatch } = useInvoiceState()
   const [generating, setGenerating] = useState(false)
+  const theme = useTheme()
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
 
   const handleDownload = useCallback(async () => {
     setGenerating(true)
@@ -38,10 +40,17 @@ export default function App() {
   }, [state])
 
   return (
-    <Container maxWidth="md" sx={{ py: 4 }}>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+    <Container maxWidth="md" sx={{ py: { xs: 2, sm: 4 } }}>
+      <Box sx={{
+        display: 'flex',
+        flexDirection: { xs: 'column', sm: 'row' },
+        justifyContent: 'space-between',
+        alignItems: { xs: 'stretch', sm: 'center' },
+        gap: { xs: 1.5, sm: 0 },
+        mb: 2,
+      }}>
         <Typography variant="h5" component="h1">Invoiceful</Typography>
-        <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+        <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', flexWrap: 'wrap' }}>
           <TextField
             size="small"
             select
@@ -66,22 +75,26 @@ export default function App() {
               <MenuItem key={l.value} value={l.value}>{l.label}</MenuItem>
             ))}
           </TextField>
-          <Button
-            size="small"
-            variant="outlined"
-            startIcon={<RestartAlt />}
-            onClick={() => dispatch({ type: 'RESET' })}
-          >
-            Reset
-          </Button>
-          <Button
-            variant="contained"
-            startIcon={<Download />}
-            disabled={generating}
-            onClick={handleDownload}
-          >
-            {generating ? 'Generating...' : 'Download PDF'}
-          </Button>
+          <Box sx={{ display: 'flex', gap: 1, ml: { xs: 0, sm: 'auto' } }}>
+            <Button
+              size="small"
+              variant="outlined"
+              startIcon={isMobile ? undefined : <RestartAlt />}
+              onClick={() => dispatch({ type: 'RESET' })}
+            >
+              {isMobile ? <RestartAlt /> : 'Reset'}
+            </Button>
+            <Button
+              variant="contained"
+              size={isMobile ? 'small' : 'medium'}
+              startIcon={<Download />}
+              disabled={generating}
+              onClick={handleDownload}
+              sx={{ whiteSpace: 'nowrap' }}
+            >
+              {generating ? 'Generating...' : 'Download PDF'}
+            </Button>
+          </Box>
         </Box>
       </Box>
       <InvoiceForm state={state} dispatch={dispatch} />
