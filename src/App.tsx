@@ -101,14 +101,14 @@ export default function App() {
       <InvoiceForm state={state} dispatch={dispatch} />
       <Box component="footer" sx={{ mt: 4, py: 2, textAlign: 'center' }}>
         <Link
-          href="https://github.com/dengaleev/invoiceful"
+          href={`https://github.com/dengaleev/invoiceful/commit/${__COMMIT_HASH__}`}
           target="_blank"
           rel="noopener"
           color="text.secondary"
           sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.5, fontSize: 12 }}
         >
           <GitHub sx={{ fontSize: 14 }} />
-          {__COMMIT_HASH__}
+          {__COMMIT_HASH__.slice(0, 7)}
         </Link>
       </Box>
     </Container>
