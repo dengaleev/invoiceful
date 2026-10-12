@@ -1,9 +1,22 @@
-import { Document, Page, View, Text, StyleSheet } from '@react-pdf/renderer'
+import { Document, Page, View, Text, StyleSheet, Font } from '@react-pdf/renderer'
+import arimoRegular from '@expo-google-fonts/arimo/400Regular/Arimo_400Regular.ttf'
+import arimoBold from '@expo-google-fonts/arimo/700Bold/Arimo_700Bold.ttf'
 import type { InvoiceData } from './types'
 import { formatAmount, formatDate } from './utils'
 
+// The built-in Helvetica is not embedded, so each viewer substitutes its own glyphs
+// (macOS Preview draws € over the next digit) and anything outside WinAnsi (₽, ₾,
+// U+202F in fr-FR numbers) is garbled. Arimo is embedded and has Helvetica metrics.
+Font.register({
+  family: 'Arimo',
+  fonts: [
+    { src: arimoRegular },
+    { src: arimoBold, fontWeight: 'bold' },
+  ],
+})
+
 const styles = StyleSheet.create({
-  page: { padding: 40, fontSize: 10, fontFamily: 'Helvetica', color: '#333' },
+  page: { padding: 40, fontSize: 10, fontFamily: 'Arimo', color: '#333' },
   header: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 30 },
   title: { fontSize: 22, fontWeight: 'bold', color: '#1565c0', marginBottom: 4 },
   sectionTitle: { fontSize: 11, fontWeight: 'bold', marginBottom: 6, color: '#555' },
